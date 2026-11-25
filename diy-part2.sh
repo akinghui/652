@@ -1,20 +1,13 @@
 #!/bin/bash
-#
-# https://github.com/P3TERX/Actions-OpenWrt
-# File name: diy-part2.sh
-# Description: OpenWrt DIY script part 2 (After Update feeds)
-#
-# Copyright (c) 2019-2024 P3TERX <https://p3terx.com>
-#
-# This is free software, licensed under the MIT License.
-# See /LICENSE for more information.
-#
+set -e
+cd "${GITHUB_WORKSPACE}/openwrt"
 
-# Modify default IP
-#sed -i 's/192.168.1.1/192.168.50.5/g' package/base-files/files/bin/config_generate
+# Use the latest Xray source from the small feed.
+rm -rf feeds/packages/net/xray-core feeds/packages/net/xray-example feeds/packages/net/xray-plugin
+rm -rf package/feeds/packages/xray-core package/feeds/packages/xray-example package/feeds/packages/xray-plugin
 
-# Modify default theme
-#sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+# Use the Go toolchain recommended by the small feed.
+rm -rf feeds/packages/lang/golang package/feeds/packages/golang
+git clone --depth=1 -b 1.26 https://github.com/kenzok8/golang feeds/packages/lang/golang
 
-# Modify hostname
-#sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
+./scripts/feeds install golang xray-core luci-app-passwall ddnsto luci-app-ddnsto

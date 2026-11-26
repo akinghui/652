@@ -61,11 +61,13 @@ jobs:
 
       - name: Install feeds
         run: cd openwrt && ./scripts/feeds install -a
-      - name: Inject DDNSTO token
+
+      - name: Inject DDNSTO token and root password
         env:
           DDNSTO_TOKEN: ${{ secrets.DDNSTO_TOKEN }}
+          ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
         run: |
-          mkdir -p "$GITHUB_WORKSPACE/files/etc/config"
+          mkdir -p "$GITHUB_WORKSPACE/files/etc/config" "$GITHUB_WORKSPACE/files/etc/uci-defaults"
           {
             echo "config ddnsto"
             echo "    option enabled '1'"
@@ -74,6 +76,15 @@ jobs:
             echo "    option logger '0'"
             echo "    option feat_enabled '0'"
           } > "$GITHUB_WORKSPACE/files/etc/config/ddnsto"
+
+          cat > "$GITHUB_WORKSPACE/files/etc/uci-defaults/90-set-root-password" <<EOF
+          #!/bin/sh
+          (echo '${ROOT_PASSWORD}'; sleep 1; echo '${ROOT_PASSWORD}') | passwd root >/dev/null 2>&1
+          rm -f /etc/uci-defaults/90-set-root-password
+          exit 0
+          EOF
+          chmod +x "$GITHUB_WORKSPACE/files/etc/uci-defaults/90-set-root-password"
+
       - name: Load custom configuration
         run: |
           [ -e files ] && mv files openwrt/files

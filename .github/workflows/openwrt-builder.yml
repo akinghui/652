@@ -61,7 +61,19 @@ jobs:
 
       - name: Install feeds
         run: cd openwrt && ./scripts/feeds install -a
-
+      - name: Inject DDNSTO token
+        env:
+          DDNSTO_TOKEN: ${{ secrets.DDNSTO_TOKEN }}
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/files/etc/config"
+          {
+            echo "config ddnsto"
+            echo "    option enabled '1'"
+            echo "    option token '${DDNSTO_TOKEN}'"
+            echo "    option index '0'"
+            echo "    option logger '0'"
+            echo "    option feat_enabled '0'"
+          } > "$GITHUB_WORKSPACE/files/etc/config/ddnsto"
       - name: Load custom configuration
         run: |
           [ -e files ] && mv files openwrt/files

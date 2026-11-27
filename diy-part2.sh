@@ -11,7 +11,8 @@ rm -rf feeds/packages/lang/golang package/feeds/packages/golang
 git clone --depth=1 -b 1.27 https://github.com/kenzok8/golang feeds/packages/lang/golang
 
 ./scripts/feeds install golang xray-core luci-app-passwall ddnsto luci-app-ddnsto
-# Runtime UCI defaults
+
+# Runtime UCI defaults.
 mkdir -p files/etc/uci-defaults
 
 cat > files/etc/uci-defaults/91-set-lan-ip <<'EOF'
